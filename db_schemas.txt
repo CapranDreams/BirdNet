@@ -1,0 +1,29 @@
+
+# ebirds.db
+CREATE TABLE ebirds (
+    id INTEGER PRIMARY KEY, 
+    common_name TEXT,
+    scientific_name TEXT,
+    species_code TEXT,
+    rarity REAL,
+    image TEXT
+);
+CREATE TABLE config (
+    id INTEGER PRIMARY KEY,
+    state TEXT,
+    subregion_code TEXT,
+    latitude REAL,
+    longitude REAL,
+    compiled BOOL
+);
+
+# birds.db
+CREATE TABLE birds (
+    scientific_name String ,
+    common_name String ,
+    confidence Float ,
+    sighting_time DateTime ,
+    location_name String ,
+    latitude Float ,
+    longitude Float
+);

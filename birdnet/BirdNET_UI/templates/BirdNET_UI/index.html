@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inference Results</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
+    <script src="{% static 'js/birds.js' %}"></script>
+</head>
+<body>
+    <h1 style="display: inline;">BirdNET Inference Results</h1>
+    <div class="button-container">
+        <a href="{% url 'settings' %}" id="settings-button">
+            <button class="settings-button">
+                <img class="settings-image" src="{% static 'img/settings.png' %}">
+                Settings
+            </button>
+        </a>
+        <a href="{% url 'download_database' %}" title="Download the raw birds.db database file (recommended to open with python)" id="download-database-button">
+            <button class="database-button">
+                <img class="card-collection-image" src="{% static 'img/database_icon.png' %}">
+                Download Database
+            </button>
+        </a>
+        <a href="/stats" title="View your bird collection (in cards form!)" id="stats-button">
+            <button class="collection-button">
+                <img class="card-collection-image" src="{% static 'img/card-light.png' %}">
+                Collection
+            </button>
+        </a>
+    </div>
+
+
+    <h2 id="bird-observations-header">Bird Observations (last 7 days)</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Species</th>
+                <th>01</th>
+                <th>02</th>
+                <th>03</th>
+                <th>04</th>
+                <th>05</th>
+                <th>06</th>
+                <th>07</th>
+                <th>08</th>
+                <th>09</th>
+                <th>10</th>
+                <th>11</th>
+                <th>12</th>
+                <th>13</th>
+                <th>14</th>
+                <th>15</th>
+                <th>16</th>
+                <th>17</th>
+                <th>18</th>
+                <th>19</th>
+                <th>20</th>
+                <th>21</th>
+                <th>22</th>
+                <th>23</th>
+                <th>24</th>
+            </tr>
+        </thead>
+        <tbody id="bird-list">      
+        </tbody>
+    </table>
+    
+    <h2>Spectrogram</h2>
+    <div id="heatmap"></div>
+
+    <h2 id="live-detections-table-header">Detections</h2>
+    <table class="LiveDetectionsTable">
+        <thead>
+            <tr>
+                <th class="LiveDetectionsTableHeader">Confidence</th>
+                <th class="LiveDetectionsTableHeader">Common Name</th>
+                <th class="LiveDetectionsTableHeader">Scientific Name</th>
+            </tr>
+        </thead>
+        <tbody id="bird-list-now">
+        </tbody>
+    </table>
+
+
+    <!-- <h2 id="all-time-bird-records-header">All Time Bird Records</h2>
+    <table class="AlltimeDetectionsTable">
+        <thead>
+            <tr>
+                <th class="AlltimeDetectionsTableHeader">Common Name</th>
+                <th class="AlltimeDetectionsTableHeader">Scientific Name</th>
+                <th class="AlltimeDetectionsTableHeader">Count</th>
+                <th class="AlltimeDetectionsTableHeader">Max Confidence</th>
+            </tr>
+        </thead>
+        <tbody id="all-time-bird-records">
+        </tbody> 
+    </table> -->
+</body>
+</html>

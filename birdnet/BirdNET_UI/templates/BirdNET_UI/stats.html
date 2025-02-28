@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Collection</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{% static 'js/stats.js' %}"></script>
+</head>
+<body>
+    <div class="header-container">
+        <h1 style="display: inline;">eBird Collection</h1>
+        <div class="sorting-container" style="display: inline; margin-left: 20px;">
+            <label for="sort-options">Sort by:</label>
+            <select id="sort-options">
+                <option value="common_name">Common Name</option>
+                <option value="scientific_name">Scientific Name</option>
+                <option value="rarity">Rarity</option>
+                <option value="count">Count</option>
+            </select>
+            <label for="sort-order">Order:</label>
+            <select id="sort-order">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+        </div>
+        <div>
+            <a href="#" title="Resets local rarity of birds in region. Takes a couple minutes to complete." class="ebirds-compile-button" onclick="promptForPassword(event)">Compile</a>
+            <a href="/" title="Return to the main page" class="home-button">Home</a>
+        </div>
+    </div>
+    <div class="grid-container" id="bird-cards">
+        <div class="grid-item">
+            <p>Please wait while your collection is loading...</p>
+        </div>
+    </div>
+    <div id="bird-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="modal-bird-name"></h2>
+            <p id="modal-bird-scientific-name" style="font-style: italic;"></p>
+            <div id="hourly-count-chart" style="width: 100%; height: 300px;"></div>
+            <div id="weekly-count-chart" style="width: 100%; height: 300px;"></div>
+        </div>
+    </div>
+</body>
+</html> 

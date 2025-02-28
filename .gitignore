@@ -1,0 +1,10 @@
+*.pyc
+__pycache__
+alembic
+migrations
+BirdNET.code-workspace
+_secrets
+.env
+*.db
+venv_birdnet
+_push_to_server.py
