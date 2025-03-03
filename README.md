@@ -7,6 +7,9 @@ Shows which birds have been around recently, and at what times they are making n
 ![image](https://github.com/user-attachments/assets/3b08399e-a358-4071-9164-7042bec3adf5)
 
 
+Edit settings for the birdnet. Adjust the confidence threshold for displaying results, and the confidence threshold for logging to the database seperately. This allows you to adjust the threshold for displaying results at any point. Adjust the 'history days' to change how much data the tables give you information about.
+![image](https://github.com/user-attachments/assets/ce305c9e-4d58-4ea0-8fd4-244831400e59)
+
 
 See which birds from your area have been recorded in your yard. Generates cards for all birds detected in your region in the last 30 days (or if you have counts) based on the eBirds API. Shows your sighting counts and the highest confidence recording for each bird. You can sort by popularity, rarity, common name, or scientific name. Or you can search for a particular bird if you want to know if you have seen them recently.
 ![image](https://github.com/user-attachments/assets/7e5db750-6f41-406b-a4ed-d18533c3371b)
