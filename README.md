@@ -17,3 +17,17 @@ See which birds from your area have been recorded in your yard. Generates cards 
 
 See when certain birds are out with graphs showing sightings per hour of the day and per week of the year. This could help you figure out when to go outside and look for a particular bird. For example, the owl comes out in my yard at midnight every night for a couple hours. Or the bald eagle comes in at 1pm every day.
 ![image](https://github.com/user-attachments/assets/2c197233-080c-41ad-96e8-ddb9cb266553)
+
+
+# Setup
+- Clone this repository
+- Create database tables using examples/create_tables.py
+  * Configure your latitude, longitude, state, and substate code (if you don't know this last one, follow the instructions in the jupyter notebook)
+  * This notebook should only be run once or it will create extra config entries. This likely does not break anything, but should be avoided. You can always delete the entire birds.db or ebirds.db file and create a new one (you will lose any birds added).
+- Adjust one file in particular so that it points to the right served IP
+  * birdnet/BirdNET_UI/static/js/birds.js : line 1
+  * const socket = new WebSocket('ws://localhost:8151/ws/birds/');  // Adjust the URL as necessary
+  * Adjust this line by replacing localhost with your server's local IP address (192.168.0.XXX)
+- You may need to open up firewall options. Do not open your ports up to the entire world, just your local network!
+- If you want to clone an existing BirdNetPi database into here:
+  * Follow the instructions in examples/import_birdnetpi_db.ipynb
