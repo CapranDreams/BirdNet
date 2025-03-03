@@ -5,20 +5,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <script src="{% static 'js/config.js' %}"></script>
 </head>
 <body>
     <h1 style="display: inline;">Settings</h1>
     <div class="config-button-container">
-        <button id="save-settings-button">Save Changes</button>
+        <button id="save-settings-button" type="submit">Save Changes</button>
         <a href="/" class="home-button">Home</a>
     </div>
 
-    <p>At this time, the settings are saved but not applied until the server is restarted. This is a WIP.</p>
-
-    <form id="config-form" class="config-form">
-        <!-- Dynamic content will be injected here -->
+    <form id="config-form" class="config-form" method="POST" action="{% url 'update_birds_config' %}">
+        {% csrf_token %}
+        <div class="config-section">
+            <h2>Bird Detection Settings</h2>
+            <div class="config-row">
+                <label for="confidence_threshold">Confidence Threshold:</label>
+                <input type="text" id="confidence_threshold" name="confidence_threshold" value="{{ confidence_threshold }}" required>
+            </div>
+            <div class="config-row">
+                <label for="confidence_threshold_for_add_to_db">Confidence Threshold for Add to Database:</label>
+                <input type="text" id="confidence_threshold_for_add_to_db" name="confidence_threshold_for_add_to_db" value="{{ confidence_threshold_for_add_to_db }}" required>
+            </div>
+            <div class="config-row">
+                <label for="history_days">History Days:</label>
+                <input type="text" id="history_days" name="history_days" value="{{ history_days }}" required>
+            </div>
+            <div class="config-row">
+                <label for="max_frequency">Max Frequency (Hz):</label>
+                <input type="text" id="max_frequency" name="max_frequency" value="{{ max_frequency }}" required>
+            </div>
+            <div class="config-row">
+                <label for="latitude">Latitude:</label>
+                <input type="text" id="latitude" name="latitude" value="{{ latitude }}" required>
+            </div>
+            <div class="config-row">
+                <label for="longitude">Longitude:</label>
+                <input type="text" id="longitude" name="longitude" value="{{ longitude }}" required>
+            </div>
+            <div class="config-row">
+                <label for="state">State:</label>
+                <input type="text" id="state" name="state" value="{{ state }}" required>
+            </div>
+            <div class="config-row">
+                <label for="subregion_code">Subregion Code:</label>
+                <input type="text" id="subregion_code" name="subregion_code" value="{{ subregion_code }}" required>
+            </div>
+        </div>
     </form>
+
 </body>
 </html> 

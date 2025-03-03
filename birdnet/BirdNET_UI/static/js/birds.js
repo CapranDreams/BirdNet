@@ -39,7 +39,6 @@ connectWebSocket();
 let heatmapChart; // Declare the heatmapChart variable globally
 
 
-
 // Function to fetch bird records
 async function fetchBirds() {
     try {
@@ -103,6 +102,41 @@ async function fetchDetectionsThisWeek() {
         console.error('Error fetching detections_this_week:', error);
     }
 }
+
+function fetchDetectionsThisWeekGenusOnly() {
+    fetch('/api/detections_this_week_genus_only/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // console.log("fetchDetectionsThisWeekGenusOnly: ", data);
+        updateWeeklyBirdsTable(data);
+    })
+    .catch(error => {
+        console.error('Error fetching detections by genus:', error);
+    });
+}
+
+function fetchDetectionsThisWeekSecondNameOnly() {
+    fetch('/api/detections_this_week_second_name_only/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // console.log("fetchDetectionsThisWeekSecondNameOnly: ", data);
+        updateWeeklyBirdsTable(data);
+    })
+    .catch(error => {
+        console.error('Error fetching detections by second name:', error);
+    });
+}
+
 async function fetchBirdDetectionsCount() {
     try {
         fetch('/api/bird_detections_count/')
@@ -358,6 +392,84 @@ function updateObservationHistoryDays() {
     });
 }   
 
+async function fetchObservationStats() {
+    fetch('/api/observation_stats/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    }).then(data => {
+        console.log("observation_stats: ", data);
+        const observationHistoryDays = data.history_days;
+        const confidenceThreshold = data.confidence_threshold;
+        const totalObservations = data.total_observations;
+        const totalSpecies = data.total_species;
+        const totalObservationsLastXDays = data.total_observations_last_X_days;
+
+        // update the total observations header as well
+        const totalObservationsHeader = document.getElementById('total-observations-header');
+        totalObservationsHeader.textContent = `Total observations over last ${observationHistoryDays} days`;
+        const totalObservationsLastXDaysHeader = document.getElementById('total-observations-last-days');
+        totalObservationsLastXDaysHeader.textContent = `${totalObservationsLastXDays}`;
+
+        // update the total species
+        const totalSpeciesP = document.getElementById('total-species');
+        totalSpeciesP.textContent = `${totalSpecies}`;
+
+        // update the total observations
+        const totalObservationsP = document.getElementById('total-observations');
+        totalObservationsP.textContent = `${totalObservations}`;
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+
+async function fetchNewBirds() {
+    try {
+        const response = await fetch('/api/new_birds/');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log("fetchNewBirds: ", data);
+        updateNewBirdsDisplay(data);
+    } catch (error) {
+        console.error('Error fetching new birds:', error);
+    }
+}
+
+function updateNewBirdsDisplay(birds) {
+    const newBirdsContainer = document.getElementById('new-birds-flex');
+    if (!newBirdsContainer) return;
+    
+    newBirdsContainer.innerHTML = ''; // Clear existing content
+    
+    if (birds.length === 0) {
+        const noNewBirds = document.createElement('p');
+        noNewBirds.textContent = 'No new birds detected this week.';
+        newBirdsContainer.appendChild(noNewBirds);
+        return;
+    }
+    
+    birds.forEach(bird => {
+        const thumbnailDiv = document.createElement('div');
+        thumbnailDiv.className = 'new-bird-thumbnail';
+        
+        const birdName = document.createElement('p');
+        birdName.textContent = bird.common_name;
+        
+        const birdImage = document.createElement('img');
+        birdImage.src = bird.image || '/static/img/bird_not_found.png';
+        birdImage.alt = bird.common_name;
+        
+        thumbnailDiv.appendChild(birdName);
+        thumbnailDiv.appendChild(birdImage);
+        newBirdsContainer.appendChild(thumbnailDiv);
+    });
+}
+
 // Call fetchBirds and initializeHeatmapChart when the window loads
 window.onload = function() {
     updateObservationHistoryDays();
@@ -365,6 +477,8 @@ window.onload = function() {
     fetchDetectionsThisWeek();
     // fetchBirdDetectionsCount();
     fetchWavSpectrogram();  // Fetch and plot the spectrogram
+    fetchNewBirds();
+    fetchObservationStats();
 };
 
 
@@ -372,5 +486,23 @@ function updateAll() {
     fetchBirdsNow();
     fetchDetectionsThisWeek();
     fetchWavSpectrogram();  // Fetch and plot the spectrogram
+    fetchNewBirds();
+    fetchObservationStats();
 }
+
+// Add event listener for the genus grouping checkbox
+document.addEventListener('DOMContentLoaded', function() {
+    const groupByOptions = document.querySelectorAll('input[name="group-by"]');
+    groupByOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            if (this.id === 'group-by-genus') {
+                fetchDetectionsThisWeekGenusOnly();
+            } else if (this.id === 'group-by-second-name') {
+                fetchDetectionsThisWeekSecondNameOnly();
+            } else {
+                fetchDetectionsThisWeek();
+            }
+        });
+    });
+});
 

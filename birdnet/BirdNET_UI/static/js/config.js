@@ -1,62 +1,63 @@
-function loadConfigFile() {
-    const configData = fetch('/api/settingFile/')
+function loadBirdsConfig() {
+    fetch('/api/birds_config/')
         .then(response => response.json())
         .then(data => {
-            console.log('configData:', data);
-            generateConfigUI(data);
-            addEventListeners();
+            document.getElementById('confidence_threshold').value = data.confidence_threshold || '';
+            document.getElementById('history_days').value = data.history_days || '';
+            document.getElementById('max_frequency').value = data.max_frequency || '';
+            document.getElementById('latitude').value = data.latitude || '';
+            document.getElementById('longitude').value = data.longitude || '';
+            document.getElementById('state').value = data.state || '';
+            document.getElementById('subregion_code').value = data.subregion_code || '';
+            document.getElementById('confidence_threshold_for_add_to_db').value = data.confidence_threshold_for_add_to_db || '';
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error loading birds config:', error);
         });
 }
-document.addEventListener('DOMContentLoaded', loadConfigFile);
 
-function generateConfigUI(config) {
-    const disabled_keys = ['BIRDNET_VERSION', 'BIRDNET_UI_VERSION', 'BIRDNET_ADDRESS', 'BIRDNET_PORT', 'BIRDNET_WS_PORT'];
+function saveBirdsConfig() {
+    const configData = {
+        confidence_threshold: document.getElementById('confidence_threshold').value,
+        history_days: document.getElementById('history_days').value,
+        max_frequency: document.getElementById('max_frequency').value,
+        latitude: document.getElementById('latitude').value,
+        longitude: document.getElementById('longitude').value,
+        state: document.getElementById('state').value,
+        subregion_code: document.getElementById('subregion_code').value,
+        confidence_threshold_for_add_to_db: document.getElementById('confidence_threshold_for_add_to_db').value
+    };
 
-    const form = document.getElementById('config-form');
-    for (const key in config) {
-        if (config.hasOwnProperty(key)) {
-            const label = document.createElement('label');
-            label.textContent = key;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.name = key;
-            input.value = config[key];
-            // Disable input if the key is in disabled_keys
-            if (disabled_keys.includes(key)) {
-                input.disabled = true;
-            }
-            form.appendChild(label);
-            form.appendChild(input);
-            form.appendChild(document.createElement('br'));
-        }
-    }
-}
-
-function addEventListeners() {
-    document.getElementById('save-settings-button').addEventListener('click', function() {
-        const formData = new FormData(document.getElementById('config-form'));
-        const configObject = {};
-    formData.forEach((value, key) => {
-        configObject[key] = value;
-    });
-
-    fetch('/update_config/', {
+    fetch('/api/update_birds_config/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         },
-        body: JSON.stringify(configObject),
+        body: JSON.stringify(configData),
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message);
+        if (data.status === 'success') {
+            // alert('Bird detection settings saved successfully!');
+            // Redirect to the home page after successful save
+            window.location.href = '/';
+        } else {
+            alert('Error saving settings: ' + (data.error || 'Unknown error'));
+        }
     })
     .catch(error => {
-            console.error('Error:', error);
-        });
+        console.error('Error:', error);
+        alert('Error saving settings: ' + error);
     });
-
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadBirdsConfig();
+
+    document.getElementById('save-settings-button').addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        saveBirdsConfig();
+    });
+});

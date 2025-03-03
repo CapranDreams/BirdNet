@@ -1,8 +1,21 @@
-const socket = new WebSocket('ws://localhost:8150/ws/birds/');  // Adjust the URL as necessary
-
 var birds = null;
 var eBirds = null;
 var birdCards = null;
+
+async function fetchConfidenceThreshold() {
+    try {
+        const response = await fetch('/api/birds_config/');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        confidence_threshold = parseFloat(data.confidence_threshold);
+        return confidence_threshold;
+    } catch (error) {
+        console.error('Error fetching confidence threshold:', error);
+    }   
+}
+var confidence_threshold = fetchConfidenceThreshold();
 
 async function fetchBirdDetectionsCount() {
     try {
@@ -40,10 +53,16 @@ class birdCard {
         this.max_confidence = max_confidence;
     }
 
-    getCard() {
+    async getCard() {
         var cardElement = document.createElement('div');
         cardElement.classList.add('birdCard');
         cardElement.classList.add('grid-item');
+
+        
+        if (this.max_confidence < confidence_threshold && this.count > 0) {
+            cardElement.classList.add('low-confidence-card');
+        }
+
         var confidence_html = ``;
         if (this.count == 0) {
             cardElement.classList.add('greyed-out');
@@ -133,7 +152,7 @@ class birdCard {
     }
 
     renderHourlyCountChart(data) {
-        console.log("renderHourlyCountChart data:", data.hourly_counts);
+        // console.log("renderHourlyCountChart data:", data.hourly_counts);
 
         // Create an array of hours (0-23)
         const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -163,7 +182,7 @@ class birdCard {
     }
 
     renderWeeklyCountChart(data) {
-        console.log("renderWeeklyCountChart data:", data);
+        // console.log("renderWeeklyCountChart data:", data);
 
         const weeks = Array.from({ length: 52 }, (_, i) => i + 1);
         const trace = {
@@ -220,14 +239,14 @@ window.onload = async function() {
     ]);
 
     birdCards = mergeBirds();
-    console.log("birdCards:", birdCards);
+    // console.log("birdCards:", birdCards);
     
     // Clear existing bird cards before appending new ones
     const birdCardsContainer = document.getElementById('bird-cards');
     birdCardsContainer.innerHTML = '';  // Clear existing cards
 
     // Display the bird cards
-    displayBirdCards(birdCards);
+    await displayBirdCards(birdCards);
 
     // Add event listener for sorting
     document.getElementById('sort-options').addEventListener('change', function() {
@@ -237,15 +256,19 @@ window.onload = async function() {
     document.getElementById('sort-order').addEventListener('change', function() {
         sortBirdCards();
     });
+
+    document.getElementById('sort-options').value = 'count';
+    document.getElementById('sort-order').value = 'desc';
+    sortBirdCards();
 };
 
-function displayBirdCards(cards) {
+async function displayBirdCards(cards) {
     const birdCardsContainer = document.getElementById('bird-cards');
     birdCardsContainer.innerHTML = '';  // Clear existing cards
 
     for (var i = 0; i < cards.length; i++) {
         var card = cards[i];
-        var cardElement = card.getCard();
+        var cardElement = await card.getCard();
         birdCardsContainer.appendChild(cardElement);
     }
 }

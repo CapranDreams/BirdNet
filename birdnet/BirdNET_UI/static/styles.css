@@ -439,11 +439,249 @@ pre {
 }
 
 .sorting-container {
-    display: flex; /* Use flexbox for sorting options */
-    align-items: center; /* Center items vertically */
-    margin-left: 20px; /* Space between the header and sorting options */
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.sorting-container select {
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    background-color: white;
+    font-size: 0.9em;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-right: 10px;
+    outline: none;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+.sorting-container select:hover {
+    border-color: #bd006e;
+}
+
+.sorting-container select:focus {
+    border-color: #bd006e;
+    box-shadow: 0 0 0 2px rgba(189, 0, 110, 0.2);
 }
 
 .sorting-container label {
-    margin-right: 5px; /* Space between label and select */
+    margin-right: 5px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stats-header h1 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.upper-bar-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.quick-stats-container {
+    flex: 1;
+}
+
+.new-birds-container {
+    flex: 2;
+    margin-left: 20px;
+}
+
+.quick-stats-flex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.quick-stat-card {
+    background-color: white;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin: 5px;
+    text-align: center;
+    min-width: 100px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 80px; /* Fixed height for all cards */
+    justify-content: space-between;
+}
+
+.quick-stat-card h3 {
+    margin: 5px 0;
+    font-size: 0.9em;
+    height: 40px; /* Fixed height for the heading */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quick-stat-card p {
+    margin: 5px 0;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.new-birds-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.new-bird-thumbnail {
+    text-align: center;
+    margin: 5px;
+}
+.new-bird-thumbnail img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.new-bird-thumbnail p {
+    margin: 5px 0;
+    font-size: 0.8em;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.config-form {
+    display: flex;
+    flex-direction: column; /* Stack sections vertically */
+    gap: 20px; /* Space between sections */
+    padding: 20px; /* Padding around the form */
+    padding-left: 10px; /* Add padding on the left */
+    position: absolute; /* Position the form absolutely */
+    left: 5vw; /* Align the form to the left of the screen */
+}
+.config-section {
+    display: flex; /* Use flexbox for the config section */
+    flex-direction: column; /* Stack labels and inputs vertically */
+    margin-bottom: 20px; /* Add space between sections */
+}
+.config-row {
+    display: flex; /* Use flexbox for each row */
+    align-items: center; /* Center items vertically */
+    justify-content: flex-start; /* Align items to the left */
+}
+.config-row label {
+    margin-right: 10px; /* Space between label and input */
+    text-align: left; /* Align text to the left */
+    flex: 0 0 200px; /* Fixed width for labels to ensure enough space */
+}
+.config-row input {
+    padding: 8px; /* Add some padding for better appearance */
+    border: 1px solid #ccc; /* Border for the textboxes */
+    border-radius: 5px; /* Rounded corners */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    flex: 1; /* Allow input to take remaining space */
+}
+
+.quick-stats-container h2, 
+.new-birds-container h2 {
+    margin-top: 0;
+    margin-bottom: 8px; /* Reduced space between h2 and content below */
+    font-size: 1.2em; /* Slightly smaller font size */
+}
+
+.observations-header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Changed to space-between to push content to edges */
+    margin-bottom: 15px;
+    background-color: #f8f8f8; /* Match the upper-bar-container background */
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.observations-header-container h2 {
+    margin: 0;
+    font-size: 1.2em; /* Match other headings */
+}
+
+.observations-options {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Add space between radio button groups */
+}
+
+.observations-options label {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+    cursor: pointer;
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.observations-options label:hover {
+    background-color: #f0f0f0;
+}
+
+.observations-options input[type="radio"] {
+    margin-right: 5px;
+    accent-color: #bd006e; /* Match the site's accent color */
+    cursor: pointer;
+}
+
+/* Style for selected radio button label */
+.observations-options input[type="radio"]:checked + span,
+.observations-options input[type="radio"]:checked {
+    font-weight: bold;
+}
+
+.observations-options input[type="radio"]:checked + label {
+    background-color: #f8e0eb; /* Light version of the accent color */
+    border-color: #bd006e;
+}
+
+.low-confidence-card {
+    background-color: #f7e9e9; /* Light pink background */
+    border-left: 3px solid #81004b; /* Accent color border */
+}
+
+.low-confidence-card::before {
+    content: "Low Confidence";
+    display: block;
+    font-size: 0.7em;
+    color: #bd006e;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+    font-weight: bold;
 }

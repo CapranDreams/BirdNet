@@ -9,5 +9,10 @@
     "BIRDNET_UI_VERSION": "1.0.0",
     "BIRDNET_ADDRESS": "localhost",
     "BIRDNET_PORT": "8150",
-    "BIRDNET_WS_PORT": "8151"
+    "BIRDNET_WS_PORT": "8151",
+    "csrfmiddlewaretoken": "ZWpEIm0Iu4RbhtqWSVomDAJFJtc5aXdeBTvz2DahizM9sryTSy949yszDNg820n7",
+    "confidence_threshold": "0.6",
+    "history_days": "7",
+    "max_frequency": "12000",
+    "confidence_threshold_for_add_to_db": "0.5"
 }

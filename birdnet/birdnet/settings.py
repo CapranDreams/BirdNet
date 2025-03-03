@@ -28,6 +28,7 @@ def load_config():
         config = json.load(config_file)
     return config
 load_config()
+# will load from config.json file first and then later on load from the database if the database is not empty
 
 # Assign values from the config file to settings
 BIRDNET_WEB_HISTORY_DAYS_IN_OBSERVATIONS_TABLE = int(config.get("BIRDNET_WEB_HISTORY_DAYS_IN_OBSERVATIONS_TABLE", 10))
@@ -41,7 +42,7 @@ BIRDNET_UI_VERSION = config.get("BIRDNET_UI_VERSION", "1.0.0")
 BIRDNET_ADDRESS = config.get("BIRDNET_ADDRESS", "localhost")
 BIRDNET_PORT = int(config.get("BIRDNET_PORT", 8150))
 BIRDNET_WS_PORT = int(config.get("BIRDNET_WS_PORT", 8151))
-
+BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB = float(config.get("BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB", 0.5))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -173,3 +174,33 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
+
+# Add this function to load config from the database
+def load_config_from_db():
+    try:
+        from BirdNET_UI.models import Config
+        configs = Config.objects.using('birds').all()
+        config_dict = {config.key: config.value for config in configs}
+        
+        # Update settings with values from the database
+        if 'confidence_threshold' in config_dict:
+            globals()['BIRDNET_CONFIDENCE_THRESHOLD'] = float(config_dict['confidence_threshold'])
+        if 'history_days' in config_dict:
+            globals()['BIRDNET_WEB_HISTORY_DAYS_IN_OBSERVATIONS_TABLE'] = int(config_dict['history_days'])
+        if 'max_frequency' in config_dict:
+            globals()['SPECTOGRAM_MAX_FREQUENCY'] = int(config_dict['max_frequency'])
+        if 'latitude' in config_dict:
+            globals()['LATITUDE'] = float(config_dict['latitude'])
+        if 'longitude' in config_dict:
+            globals()['LONGITUDE'] = float(config_dict['longitude'])
+        if 'confidence_threshold_for_add_to_db' in config_dict:
+            globals()['BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB'] = float(config_dict['confidence_threshold_for_add_to_db'])
+    except Exception as e:
+        print(f"Error loading config from database: {e}")
+
+# Call this function after the initial settings are loaded
+try:
+    load_config_from_db()
+except:
+    # This will fail on first run before the database is set up, which is fine
+    pass

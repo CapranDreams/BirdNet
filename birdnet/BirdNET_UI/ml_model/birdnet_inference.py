@@ -12,7 +12,7 @@ class BirdNetInference:
         # self.AUDIO_FILE_PATH = os.path.join(settings.BASE_DIR, 'BirdNET_UI', 'data', 'wav', '2025-02-02-birdnet-12_56_57.wav')
         self.my_latitude = settings.LATITUDE
         self.my_longitude = settings.LONGITUDE
-        self.min_confidence = settings.BIRDNET_CONFIDENCE_THRESHOLD
+        self.min_confidence = settings.BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB
         self.my_location = settings.LOCATION_NAME
 
         # Load and initialize the BirdNET-Analyzer models.

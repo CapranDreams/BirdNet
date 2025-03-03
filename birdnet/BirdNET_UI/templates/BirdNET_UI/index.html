@@ -33,8 +33,46 @@
         </a>
     </div>
 
+    <div class="upper-bar-container">
+        <div class="quick-stats-container">
+            <h2>Quick Stats</h2>
+            <div class="quick-stats-flex">
+                <div class="quick-stat-card">
+                    <h3>Total Observations</h3>
+                    <p id="total-observations"></p>
+                </div>
+                <div class="quick-stat-card">
+                    <h3>Total Species</h3>
+                    <p id="total-species"></p>
+                </div>
+                <div class="quick-stat-card">
+                    <h3 id="total-observations-header">Total Observations over last 7 days</h3>
+                    <p id="total-observations-last-days"></p>
+                </div>
+            </div>
+        </div>
+        <div class="new-birds-container">
+            <h2>New Birds</h2>
+            <div class="new-birds-flex" id="new-birds-flex">
+                <!-- New bird thumbnails will be added here dynamically -->
+            </div>
+        </div>
+    </div>
 
-    <h2 id="bird-observations-header">Bird Observations (last 7 days)</h2>
+    <div class="observations-header-container">
+        <h2 id="bird-observations-header">Bird Observations (last 7 days)</h2>
+        <div class="observations-options">
+            <label for="group-by-common-name">
+                <input type="radio" name="group-by" id="group-by-common-name" checked>Common Name
+            </label>
+            <label for="group-by-genus">
+                <input type="radio" name="group-by" id="group-by-genus">Genus
+            </label>
+            <label for="group-by-second-name">
+                <input type="radio" name="group-by" id="group-by-second-name">Common Genus
+            </label>
+        </div>
+    </div>
     <table border="1">
         <thead>
             <tr>

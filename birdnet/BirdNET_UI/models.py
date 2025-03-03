@@ -75,3 +75,16 @@ class eBirdsConfig(models.Model):
         db_table = 'config'  # Specify the table name as 'config'
         app_label = 'BirdNET_UI'  # Specify the app label if necessary
         managed = False  # Set to False if the table is managed outside of Django
+
+class Config(models.Model):
+    id = models.AutoField(primary_key=True)
+    key = models.CharField(max_length=255, unique=True)
+    value = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"{self.key}: {self.value}"
+    
+    class Meta:
+        db_table = 'config'
+        app_label = 'BirdNET_UI'
+        managed = False
