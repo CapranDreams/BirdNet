@@ -144,7 +144,7 @@ class FileHandler(FileSystemEventHandler):
     def notify_websocket_directly(self):
         ws = websocket.WebSocket()
         try:
-            ws.connect("ws://localhost:8151/ws/birds/")  
+            ws.connect(settings.WEBSOCKET_URL)  
             message = {
                 "type": "send_bird_update",
                 "data": {

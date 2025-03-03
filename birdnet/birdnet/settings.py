@@ -44,6 +44,8 @@ BIRDNET_PORT = int(config.get("BIRDNET_PORT", 8150))
 BIRDNET_WS_PORT = int(config.get("BIRDNET_WS_PORT", 8151))
 BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB = float(config.get("BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB", 0.5))
 
+WEBSOCKET_URL = f"ws://{BIRDNET_ADDRESS}:{BIRDNET_WS_PORT}/ws/birds/"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
