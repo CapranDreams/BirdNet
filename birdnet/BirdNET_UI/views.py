@@ -1,19 +1,14 @@
 import os
 from django.shortcuts import render
 from django.conf import settings
-from birdnetlib import Recording
-from birdnetlib.analyzer import Analyzer
 from datetime import datetime, timedelta
-from django.http import JsonResponse, FileResponse, Http404, StreamingHttpResponse
-from .models import Bird, BirdNow, WavSpectrogram, eBirds, eBirdsConfig, Config
-import time
+from django.http import JsonResponse, FileResponse, Http404
+from .models import Bird, BirdNow, WavSpectrogram, eBirds, eBirdsConfig, Config, EBirdsExtra
 from BirdNET_UI.management.commands.start_file_listener import FileHandler
-from django.forms.models import model_to_dict
 from BirdNET_UI.eBirdStats import eBirdStats
 import json
 from django.views.decorators.csrf import csrf_exempt
-import subprocess
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.db.models.functions import TruncWeek, TruncYear
 import traceback
 
@@ -22,21 +17,20 @@ def serve_index(request):
 
 def get_birds(request):
     try:
-        birds = Bird.objects.using('birds').all()  # Use Django ORM to fetch all birds
+        # Get distinct birds with their counts
+        birds = Bird.objects.using('birds').values('scientific_name', 'common_name').annotate(count=Count('scientific_name')).order_by('scientific_name')
+        
         birds_data = [
             {
-                'scientific_name': bird.scientific_name,
-                'common_name': bird.common_name,
-                'confidence': bird.confidence,
-                'sighting_time': bird.sighting_time,
-                'location_name': bird.location_name,
-                'latitude': bird.latitude,
-                'longitude': bird.longitude,
+                'scientific_name': bird['scientific_name'],
+                'common_name': bird['common_name'],
+                'count': bird['count']
             }
             for bird in birds
         ]
         return JsonResponse(birds_data, safe=False)
     except Exception as e:
+        print(f"Error in get_birds view: {e}")
         return JsonResponse({'error': str(e)}, status=500)
 
 def get_birds_now(request):
@@ -273,6 +267,33 @@ def download_database(request):
     response['Content-Disposition'] = f'attachment; filename="birds.db"'
     return response
 
+def download_database_ebirds(request):
+    # Path to the database file
+    db_path = os.path.join(settings.BASE_DIR, 'BirdNET_UI', 'ebirds.db')
+    
+    # Check if the file exists
+    if not os.path.exists(db_path):
+        raise Http404("Database file not found.")
+    
+    # Serve the file as a response
+    response = FileResponse(open(db_path, 'rb'), content_type='application/x-sqlite3')
+    response['Content-Disposition'] = f'attachment; filename="ebirds.db"'
+    return response
+
+def download_python_scripts(request):
+    # Path to the database file
+    filepath = os.path.join(settings.BASE_DIR, 'BirdNET_UI', 'python_scripts.zip')
+    
+    # Check if the file exists
+    if not os.path.exists(filepath):
+        raise Http404("Database file not found.")
+    
+    # Serve the file as a response
+    response = FileResponse(open(filepath, 'rb'), content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename="python_scripts.zip"'
+    return response
+
+
 def read_ebirds_config(request):
     try:
         print("read_ebirds_config view called")
@@ -334,18 +355,6 @@ def get_update_available(request):
     update_available = FileHandler.is_update_available()
     print("update_available: ", update_available)
     return JsonResponse({'update_available': update_available}, safe=False)
-
-def get_all_from_ebirds(request):
-    # Use the 'using' method to specify the 'ebirds' database
-    ebirds = eBirds.objects.using('ebirds').all()
-    ebirds_data = [
-        {
-            'common_name': ebird.common_name,
-            'scientific_name': ebird.scientific_name,
-        }
-        for ebird in ebirds
-    ]
-    return JsonResponse(ebirds_data, safe=False)
 
 def compile_ebirds(request):
     print("compile_ebirds... this may take a few minutes")
@@ -565,21 +574,39 @@ def update_birds_config(request):
     return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 def get_observation_stats(request):
-    # get the total observations, total species, and total observations over the last historic_days days
-    history_days = get_history_days()
-    
-    confidence_threshold = Config.objects.using('birds').get(key='confidence_threshold').value
-    total_observations = Bird.objects.using('birds').filter(confidence__gte=confidence_threshold).count()
+    try:
+        # Get the confidence threshold
+        configs = Config.objects.using('birds').filter(key='confidence_threshold')
+        if configs.exists():
+            confidence_threshold = configs.first().value  # Get the first entry
+        else:
+            confidence_threshold = None  # Or set a default value
 
-    total_species_any_confidence = Bird.objects.using('birds').values('scientific_name').distinct().count()
-    total_species = Bird.objects.using('birds').filter(confidence__gte=confidence_threshold).values('scientific_name').distinct().count()
-    
-    total_observations_last_X_days = Bird.objects.using('birds').filter(sighting_time__gte=datetime.now() - timedelta(days=history_days), confidence__gte=confidence_threshold).count()
+        # get the total observations, total species, and total observations over the last historic_days days
+        history_days = get_history_days()
+        
+        total_observations = Bird.objects.using('birds').filter(confidence__gte=confidence_threshold).count()
 
-    print("total_observations: ", total_observations)
-    print("total_species: ", total_species)
-    print("total_species_any_confidence: ", total_species_any_confidence)
-    return JsonResponse({'confidence_threshold': confidence_threshold, 'history_days': history_days, 'total_observations': total_observations, 'total_species': total_species, 'total_species_any_confidence': total_species_any_confidence, 'total_observations_last_X_days': total_observations_last_X_days}, safe=False)
+        total_species_any_confidence = Bird.objects.using('birds').values('scientific_name').distinct().count()
+        total_species = Bird.objects.using('birds').filter(confidence__gte=confidence_threshold).values('scientific_name').distinct().count()
+        
+        total_observations_last_X_days = Bird.objects.using('birds').filter(sighting_time__gte=datetime.now() - timedelta(days=history_days), confidence__gte=confidence_threshold).count()
+
+        print("total_observations: ", total_observations)
+        print("total_species: ", total_species)
+        print("total_species_any_confidence: ", total_species_any_confidence)
+        return JsonResponse({
+            'confidence_threshold': confidence_threshold, 
+            'history_days': history_days, 
+            'total_observations': total_observations, 
+            'total_species': total_species, 
+            'total_species_any_confidence': total_species_any_confidence, 
+            'total_observations_last_X_days': total_observations_last_X_days,
+            'confidence_threshold': confidence_threshold
+            }, safe=False)
+    except Exception as e:
+        print(f"Error in get_observation_stats: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 def get_genus(scientific_name):
     genus = scientific_name.split(' ')[0]
@@ -588,5 +615,62 @@ def get_genus(scientific_name):
 def get_family(scientific_name):
     family = scientific_name.split(' ')[-1].split('-')[-1]
     return family
+
+def get_ebirds_extra(request):
+    """Get all entries from ebirds_extra table"""
+    try:
+        birds_extra = EBirdsExtra.objects.using('ebirds').all()
+        data = [
+            {
+                'scientific_name': bird.scientific_name,
+                'common_name': bird.common_name,
+                'best_audio': bird.best_audio,
+                'ideal_audio': bird.ideal_audio,
+                'range_map': bird.range_map,
+                'last_updated': bird.last_updated,
+                'migration_description': bird.migration_description,
+                'description': bird.description,
+                'tips': bird.tips,
+                'find_this_bird': bird.find_this_bird,
+                'habitat_value': bird.habitat_value,
+                'food_value': bird.food_value,
+                'nesting_value': bird.nesting_value,
+                'behavior_value': bird.behavior_value,
+                'conservation_value': bird.conservation_value
+            }
+            for bird in birds_extra
+        ]
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        print(f"Error in get_ebirds_extra view: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+def get_ebird_extra_by_scientific_name(request, scientific_name):
+    """Get ebirds_extra entry by scientific name"""
+    try:
+        bird_extra = EBirdsExtra.objects.using('ebirds').get(scientific_name=scientific_name)
+        data = {
+            'scientific_name': bird_extra.scientific_name,
+            'common_name': bird_extra.common_name,
+            'best_audio': bird_extra.best_audio,
+            'ideal_audio': bird_extra.ideal_audio,
+            'range_map': bird_extra.range_map,
+            'migration_description': bird_extra.migration_description,
+            'description': bird_extra.description,
+            'tips': bird_extra.tips,
+            'find_this_bird': bird_extra.find_this_bird,
+            'habitat_value': bird_extra.habitat_value,
+            'food_value': bird_extra.food_value,
+            'nesting_value': bird_extra.nesting_value,
+            'behavior_value': bird_extra.behavior_value,
+            'conservation_value': bird_extra.conservation_value,
+            'last_updated': bird_extra.last_updated
+        }
+        return JsonResponse(data)
+    except EBirdsExtra.DoesNotExist:
+        return JsonResponse({'error': 'Bird not found'}, status=404)
+    except Exception as e:
+        print(f"Error in get_ebird_extra_by_scientific_name view: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 

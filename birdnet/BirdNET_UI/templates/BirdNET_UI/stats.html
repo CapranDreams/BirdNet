@@ -7,43 +7,185 @@
     <title>Bird Collection</title>
     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
     <script src="{% static 'js/stats.js' %}"></script>
 </head>
 <body>
-    <div class="header-container">
-        <h1 style="display: inline;">eBird Collection</h1>
-        <div class="sorting-container" style="display: inline; margin-left: 20px;">
-            <label for="sort-options">Sort by:</label>
-            <select id="sort-options">
+    <div class="stats-header">
+        <h1>Bird Collection</h1>
+        
+        <div class="sorting-container">
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select">
                 <option value="common_name">Common Name</option>
                 <option value="scientific_name">Scientific Name</option>
                 <option value="rarity">Rarity</option>
-                <option value="count" selected>Count</option>
+                <option value="count">Count</option>
             </select>
-            <label for="sort-order">Order:</label>
-            <select id="sort-order">
-                <option value="asc">Ascending</option>
-                <option value="desc" selected>Descending</option>
-            </select>
+            <button id="sort-direction" class="sort-direction-button" title="Toggle sort direction">
+                <span class="sort-icon">↓</span>
+            </button>
         </div>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search birds...">
+        </div>
+        
+        <div id="bird-count" class="bird-count">Loading birds...</div>
+        
         <div>
-            <a href="#" title="Resets local rarity of birds in region. Takes a couple minutes to complete." class="ebirds-compile-button" onclick="promptForPassword(event)">Compile</a>
             <a href="/" title="Return to the main page" class="home-button">Home</a>
         </div>
     </div>
-    <div class="grid-container" id="bird-cards">
-        <div class="grid-item">
-            <p>Please wait while your collection is loading...</p>
-        </div>
+    
+    
+    <div id="bird-cards-container" class="bird-cards-container">
+        <!-- Bird cards will be added here dynamically -->
     </div>
-    <div id="bird-modal" class="modal">
+    
+    <!-- Enhanced Bird Modal -->
+    <div id="birdModal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2 id="modal-bird-name"></h2>
-            <p id="modal-bird-scientific-name" style="font-style: italic;"></p>
-            <div id="hourly-count-chart" style="width: 100%; height: 300px;"></div>
-            <div id="weekly-count-chart" style="width: 100%; height: 300px;"></div>
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <h2 id="modalBirdName"></h2>
+                    <h3 id="modalScientificName" class="scientific-name"></h3>
+                </div>
+                <div class="bird-icons-summary">
+                    <div class="icon-item">
+                        <img src="{% static 'img/habitat/forests.jpg' %}" alt="Habitat Icon" class="icon" id="habitatIcon">
+                        <span id="habitatValue"></span>
+                    </div>
+                    <div class="icon-item">
+                        <img src="{% static 'img/food/seeds.jpg' %}" alt="Food Icon" class="icon" id="foodIcon">
+                        <span id="foodValue"></span>
+                    </div>
+                    <div class="icon-item">
+                        <img src="{% static 'img/nesting/cliff.jpg' %}" alt="Nesting Icon" class="icon" id="nestingIcon">
+                        <span id="nestingValue"></span>
+                    </div>
+                    <div class="icon-item">
+                        <img src="{% static 'img/behavior/dabbler.jpg' %}" alt="Behavior Icon" class="icon" id="behaviorIcon">
+                        <span id="behaviorValue"></span>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon conservation-icon" id="conservationIcon"></div>
+                        <span id="conservationValue"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-main-content">
+                    <div class="modal-image-container">
+                        <img id="modalBirdImage" src="" alt="Bird Image">
+                    </div>
+                    
+                    <div class="modal-info-container">
+                        <div class="modal-tabs">
+                            <button class="tab-button active" data-tab="overview">Overview</button>
+                            <button class="tab-button" data-tab="details">Details</button>
+                            <button class="tab-button" data-tab="graphs">Observation Graphs</button>
+                        </div>
+                        
+                        <div class="tab-content active" id="overview-tab">
+                            <p id="modalDescription" class="bird-description"></p>
+                            <div class="audio-players-container">
+                                <div class="audio-player-container">
+                                    <h4>Listen to this bird:</h4>
+                                    <audio id="modalBirdAudio" controls></audio>
+                                </div>
+                                <div class="audio-player-container">
+                                    <h4>Best Recording:</h4>
+                                    <audio id="bestRecordingAudio" controls></audio>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="details-tab">
+                            <div class="details-section">
+                                <div class="detail-item">
+                                    <span class="detail-label">Habitat:</span>
+                                    <span id="habitatDescription" class="detail-value"></span>
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <span class="detail-label">Diet:</span>
+                                    <span id="foodDescription" class="detail-value"></span>
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <span class="detail-label">Behavior:</span>
+                                    <span id="behaviorDescription" class="detail-value"></span>
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <span class="detail-label">Nesting:</span>
+                                    <span id="nestingDescription" class="detail-value"></span>
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <span class="detail-label">Finding this bird:</span>
+                                    <span id="findThisBird" class="detail-value"></span>
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <span class="detail-label">Backyard Tips:</span>
+                                    <span id="backyardTips" class="detail-value"></span>
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <span class="detail-label">Conservation Status:</span>
+                                    <span id="conservationDescription" class="detail-value"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="graphs-tab">
+                            <div class="graphs-container">
+                                <div class="graph-section">
+                                    <h4>Hourly Observations</h4>
+                                    <div id="hourlyCountsChart" class="chart-container"></div>
+                                </div>
+                                <div class="graph-section">
+                                    <h4>Weekly Observations</h4>
+                                    <div id="weeklyCountsChart" class="chart-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-map-container">
+                    <div class="map-wrapper">
+                        <h3>Range Map</h3>
+                        <img id="modalRangeMap" src="" alt="Range Map">
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <div class="legend-color breeding"></div>
+                                <span>Breeding</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color migration"></div>
+                                <span>Migration</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color nonbreeding"></div>
+                                <span>Non-breeding</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color yearround"></div>
+                                <span>Year-round</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="migration-description">
+                        <h3>Migration Description</h3>
+                        <p id="migrationDescription"></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

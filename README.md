@@ -21,9 +21,13 @@ See when certain birds are out with graphs showing sightings per hour of the day
 
 # Setup
 - Clone this repository
-- Create database tables using examples/create_tables.py
-  * Configure your latitude, longitude, state, and substate code (if you don't know this last one, follow the instructions in the jupyter notebook)
-  * This notebook should only be run once or it will create extra config entries. This likely does not break anything, but should be avoided. You can always delete the entire birds.db or ebirds.db file and create a new one (you will lose any birds added).
+- Install dependencies
+- Create database using command:
+  * python manage.py create_tables
+    * Update your latitude, longitude, state, and substate code (if you don't know this last one, follow the instructions in the jupyter notebook using the method below)
+  * Or manually following the instructions in examples/create_tables.py
+    * Configure your latitude, longitude, state, and substate code (if you don't know this last one, follow the instructions in the jupyter notebook)
+    * This notebook should only be run once or it will create extra config entries. This likely does not break anything, but should be avoided. You can always delete the entire birds.db or ebirds.db file and create a new one (you will lose any birds added).
 - Adjust one file in particular so that it points to the right served IP
   * birdnet/BirdNET_UI/static/js/birds.js : line 1
   * const socket = new WebSocket('ws://localhost:8151/ws/birds/');  // Adjust the URL as necessary

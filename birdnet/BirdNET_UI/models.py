@@ -88,3 +88,29 @@ class Config(models.Model):
         db_table = 'config'
         app_label = 'BirdNET_UI'
         managed = False
+
+class EBirdsExtra(models.Model):
+    id = models.AutoField(primary_key=True)
+    scientific_name = models.CharField(max_length=255, unique=True)
+    common_name = models.CharField(max_length=255)
+    best_audio = models.CharField(max_length=512, null=True, blank=True)
+    ideal_audio = models.CharField(max_length=512, null=True, blank=True)
+    range_map = models.CharField(max_length=512, null=True, blank=True)
+    migration_description = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    tips = models.TextField(null=True, blank=True)
+    find_this_bird = models.TextField(null=True, blank=True)
+    habitat_value = models.CharField(max_length=255, null=True, blank=True)
+    food_value = models.CharField(max_length=255, null=True, blank=True)
+    nesting_value = models.CharField(max_length=255, null=True, blank=True)
+    behavior_value = models.CharField(max_length=255, null=True, blank=True)
+    conservation_value = models.CharField(max_length=255, null=True, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.common_name
+    
+    class Meta:
+        db_table = 'ebirds_extra'
+        app_label = 'BirdNET_UI'
+        managed = False

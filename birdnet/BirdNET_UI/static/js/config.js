@@ -61,3 +61,29 @@ document.addEventListener('DOMContentLoaded', function() {
         saveBirdsConfig();
     });
 });
+
+function promptForPassword_for_compile_ebirds(event) {
+    // not intended to be secure, just a simple way to prevent accidental compilation
+    event.preventDefault(); // Prevent the default action
+    const password = prompt("Please enter the password to compile:");
+    const correctPassword = "birdnet"; // Change this to your desired password
+
+    if (password === correctPassword) {
+        window.location.href = "/api/compile_ebirds/"; // Redirect to the compile URL
+    } else {
+        alert("Access denied.");
+    }
+}
+
+function promptForPassword_for_compile_ebirds_extras(event) {
+    // not intended to be secure, just a simple way to prevent accidental compilation
+    event.preventDefault(); // Prevent the default action
+    const password = prompt("Please enter the password to compile:");
+    const correctPassword = "birdnet"; // Change this to your desired password
+
+    if (password === correctPassword) {
+        window.location.href = "/api/compile_ebirds_extra/"; // Redirect to the compile URL
+    } else {
+        alert("Access denied.");
+    }
+}
