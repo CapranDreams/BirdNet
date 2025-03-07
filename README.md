@@ -1,6 +1,6 @@
 # BirdNet
 Customized BirdNET
-This uses the [Cornell BirdNET](https://birdnet.cornell.edu/) sound identification machine learning model to detect birds in your backyard from a microphone. It also uses the [Cornell eBird API](https://ebird.org/home) for getting rarity of birds in your area.
+This uses the [Cornell BirdNET](https://birdnet.cornell.edu/) sound identification machine learning model to detect birds in your backyard from a microphone. It also uses the [Cornell eBird API](https://ebird.org/home) for getting rarity of birds in your area. Update: now also uses extra bird details from [All About Birds.org](https://www.allaboutbirds.org/).
 
 Shows which birds have been around recently, and at what times they are making noise. You can also see a spectrogram showing the frequency vs time plot of the bird call itself below and an analysis of it below that for the last 30 second recording. You can also download the full database if you want to process these results in other ways or to prepare your own plots. Settings for the site can be adjusted in the settings page if you want to change windowing or thresholds for detection.
 ![image](https://github.com/user-attachments/assets/5b568b94-533a-430e-bc11-7e2b21041f34)
