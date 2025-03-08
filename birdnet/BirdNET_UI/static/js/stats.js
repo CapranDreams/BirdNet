@@ -415,7 +415,7 @@ class BirdCard {
                         return '/static/img/habitat/tundra.jpg';    
                     default:
                         console.error("Failed to find icon for habitat:", value);
-                        return null;
+                        return '/static/img/unknown.jpg';
                 }
             case 'food':
                 switch(value) {
@@ -445,7 +445,7 @@ class BirdCard {
                         return '/static/img/food/small_animals.jpg';
                     default:
                         console.error("Failed to find icon for food:", value);
-                        return null;
+                        return '/static/img/unknown.jpg';
                 }
             case 'nesting':
                 switch(value) {
@@ -467,7 +467,7 @@ class BirdCard {
                         return '/static/img/nesting/tree.jpg';
                     default:    
                         console.error("Failed to find icon for nesting:", value);
-                        return null;
+                        return '/static/img/unknown.jpg';
                 }
             case 'behavior':
                 switch(value) {
@@ -497,7 +497,7 @@ class BirdCard {
                         return '/static/img/behavior/surface_dive.jpg';
                     default:
                         console.error("Failed to find icon for behavior:", value);
-                        return null;
+                        return '/static/img/unknown.jpg';
                 }
             default:
                 console.error("Failed to find icon for category:", category, "with value:", value);
