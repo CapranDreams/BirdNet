@@ -24,7 +24,8 @@ See when certain birds are out with graphs showing sightings per hour of the day
 
 # Setup
 - Clone this repository
-- Install dependencies
+- Install dependencies (see requirements.txt)
+  * if using a virtual environment, you will need to adjust run string in run_server.py to use the virtual environment.
 - Create database using command:
   * python manage.py create_tables
     * Update your latitude, longitude, state, and substate code (if you don't know this last one, follow the instructions in the jupyter notebook using the method below)
@@ -38,3 +39,4 @@ See when certain birds are out with graphs showing sightings per hour of the day
 - You may need to open up firewall options. Do not open your ports up to the entire world, just your local network!
 - If you want to clone an existing BirdNetPi database into here:
   * Follow the instructions in examples/import_birdnetpi_db.ipynb
+- Find the folder BirdNET/birdnet/BirdNET_UI/data/ and add the folder "saved" to it. 
