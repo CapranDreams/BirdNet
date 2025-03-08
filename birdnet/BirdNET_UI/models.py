@@ -114,3 +114,17 @@ class EBirdsExtra(models.Model):
         db_table = 'ebirds_extra'
         app_label = 'BirdNET_UI'
         managed = False
+
+class EBirdsWorld(models.Model):
+    id = models.AutoField(primary_key=True)
+    scientific_name = models.CharField(max_length=255)
+    common_name = models.CharField(max_length=255)
+    species_code = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.common_name
+    
+    class Meta:
+        db_table = 'ebirds_world'
+        app_label = 'BirdNET_UI'
+        managed = False

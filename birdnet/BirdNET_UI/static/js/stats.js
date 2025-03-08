@@ -423,8 +423,8 @@ class BirdCard {
                         return '/static/img/food/carrion.jpg';
                     case 'fish':
                         return '/static/img/food/fish.jpg';
-                    case 'fruits':
-                        return '/static/img/food/fruits.jpg';
+                    case 'fruit':
+                        return '/static/img/food/fruit.jpg';
                     case 'insects':
                         return '/static/img/food/insects.jpg';
                     case 'mammals':

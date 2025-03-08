@@ -42,9 +42,11 @@ BIRDNET_UI_VERSION = config.get("BIRDNET_UI_VERSION", "1.0.0")
 BIRDNET_ADDRESS = config.get("BIRDNET_ADDRESS", "localhost")
 BIRDNET_PORT = int(config.get("BIRDNET_PORT", 8150))
 BIRDNET_WS_PORT = int(config.get("BIRDNET_WS_PORT", 8151))
-BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB = float(config.get("BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB", 0.5))
+BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB = float(config.get("confidence_threshold_for_add_to_db", 0.4))
 
 WEBSOCKET_URL = f"ws://{BIRDNET_ADDRESS}:{BIRDNET_WS_PORT}/ws/birds/"
+
+SAVED_RECORDINGS_FOLDER = os.path.join(BASE_DIR, 'BirdNET_UI', 'data', 'saved')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/

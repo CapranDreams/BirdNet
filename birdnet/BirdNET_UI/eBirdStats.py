@@ -2,7 +2,7 @@ import json
 import os
 from django.shortcuts import render
 from django.conf import settings
-from BirdNET_UI.models import eBirds, eBirdsConfig
+from BirdNET_UI.models import eBirds, eBirdsConfig, EBirdsWorld
 # from .models import eBirds, eBirdsConfig
 # from ..models import eBirds, eBirdsConfig
 from django.conf import settings
@@ -24,15 +24,8 @@ class eBirdStats:
         self.lon = longitude
         self.state = None
         self.subregion_code = None
-        # self.birds_in_region = None
 
         print("eBirdsConfig: ", eBirdsConfig.objects)
-
-        # self.DATABASE_URL = 'sqlite:///BirdNET_UI/ebirds.db'  # Change this to your actual database URL
-        # self.engine = create_engine(self.DATABASE_URL)
-        # self.Base = declarative_base()
-        # self.Base.metadata.create_all(self.engine)
-        # self.Session = sessionmaker(bind=self.engine)
 
         self.set_location(latitude, longitude)
 
@@ -41,20 +34,25 @@ class eBirdStats:
         self.lon = longitude
         self.state, self.subregion_code = self.get_US_regioncode(self.lat, self.lon)
 
-        print("compiled: ", self.get_config_compiled())
-        # check if the ebirds.db config table is true or false for 'compiled'
-        # session = self.Session()    
-        # config = session.query(eBirdsConfig).first()
-        # print(config)
-        # session.close()
-        # if config and config['compiled'].value == 'false':
-
-        #     # build the birds in region database
-        #     print("Building birds in region database")
-        #     self.build_birds_in_region_db()
-        # else:
-        #     print("Birds in region database already built")
-
+    def build_global_ebirds_db(self):
+        url = "https://api.ebird.org/v2/product/spplist/world"
+        headers = {"X-eBirdApiToken": self.api_key}
+        response = requests.get(url, headers=headers)
+        all_bird_codes_world = response.json()
+        num_bird_codes_world = len(all_bird_codes_world)
+        print(f"Number of bird codes in the world: {num_bird_codes_world}")
+        for i, bird_code in enumerate(all_bird_codes_world):
+            print(f"Processing bird code {i} / {num_bird_codes_world}")
+            scientific_name, common_name, species_code, bird_band = self.get_bird_details(bird_code)
+            if("(hybrid)" in common_name):
+                continue;
+            record = {
+                'common_name': common_name,
+                'scientific_name': scientific_name,
+                'species_code': species_code,
+            }
+            # push to ebirds_global
+            self.push_to_ebirds_global_db(record)
     def build_birds_in_region_db(self):
         self.erase_ebirds_database()
         for bird in self.get_all_birds_in_region(self.state):
@@ -71,9 +69,33 @@ class eBirdStats:
                 'image': img_url,
             }
             self.push_to_ebirds_database(record)
-            self.set_config_compiled(True)
+
+        # scan the data/saved wav folder for any birds not already added and add them to the database too
+        for file in os.listdir('data/saved'):
+            if file.endswith('.wav'):
+                scientific_name = file.split('.')[0].replace('_', ' ')
+                if eBirds.objects.using('ebirds').filter(scientific_name=scientific_name).exists():
+                    continue
+                species_code = self.get_bird_by_scientific_name(scientific_name).species_code
+                common_name = self.get_bird_by_scientific_name(scientific_name).common_name
+                img_url = self.get_bird_image(scientific_name)
+                rarity = eBirds.objects.using('ebirds').filter(scientific_name=scientific_name).count()
+                record = {
+                    'common_name': common_name,
+                    'scientific_name': scientific_name,
+                    'species_code': species_code,
+                    'rarity': rarity,
+                    'image': img_url,
+                }
+                self.push_to_ebirds_database(record)
 
 
+        self.set_config_compiled(True)
+
+    def push_to_ebirds_global_db(self, ebird_global_record):
+        # Use Django ORM to save the record
+        bird = EBirdsWorld(**ebird_global_record)
+        bird.save(using='ebirds')
     def push_to_ebirds_database(self, ebird_record):
         # Use Django ORM to save the record
         bird = eBirds(**ebird_record)
@@ -92,10 +114,11 @@ class eBirdStats:
             return config[0].compiled
         return False
 
-
-
     def get_bird_details(self, bird_code):
         url = f"https://api.ebird.org/v2/ref/taxonomy/ebird?species={bird_code}"
+        # example response:
+        # SCIENTIFIC_NAME,COMMON_NAME,SPECIES_CODE,CATEGORY,TAXON_ORDER,COM_NAME_CODES,SCI_NAME_CODES,BANDING_CODES,ORDER,FAMILY_COM_NAME,FAMILY_SCI_NAME,REPORT_AS,EXTINCT,EXTINCT_YEAR,FAMILY_CODE
+        # Anser caerulescens,Snow Goose,snogoo,species,257.0,,ANCA,SNGO,Anseriformes,"Ducks, Geese, and Waterfowl",Anatidae,,,,anatid1
         headers = {"X-eBirdApiToken": self.api_key}
         response = requests.get(url, headers=headers)
         bird_details = response.text.split('\n')[1].split(',')
@@ -130,12 +153,15 @@ class eBirdStats:
         headers = {"X-eBirdApiToken": self.api_key}
         response = requests.get(url, headers=headers)
         return response.json()
-    def get_recent_observations(self, species_code, latitude=None, longitude=None):
+    def get_recent_observations(self, species_code, latitude=None, longitude=None, regionCode=None):
         if latitude is None:
             latitude = self.lat
         if longitude is None:
             longitude = self.lon
-        url = f"https://api.ebird.org/v2/data/obs/geo/recent/{species_code}?lat={latitude}&lng={longitude}&fmt=json"
+        if regionCode is None:
+            regionCode = self.state
+        # url = f"https://api.ebird.org/v2/data/obs/geo/recent/{species_code}?lat={latitude}&lng={longitude}&fmt=json&back=30"
+        url = f"https://api.ebird.org/v2/data/obs/{regionCode}/recent/{species_code}?fmt=json&back=30"
         headers = {"X-eBirdApiToken": self.api_key}
         response = requests.get(url, headers=headers)
         return response.json()
@@ -195,25 +221,6 @@ class eBirdStats:
 
         return state_code, subregion_code
 
-    def get_species_code(self, species_name):
-        # query the eBirds database for the species code
-        species_name = species_name.replace("_", " ").replace("-", " ")
-        species = eBirds.objects.using('ebirds').filter(common_name__icontains=species_name).first()
-        # if the species is not found, return None
-        if species is None:
-            print("species not found")
-            return None
-        return species.species_code
-    
-    def get_ebird_sciname(self, species_name):
-        # query the eBirds database for the species name
-        species = eBirds.objects.using('ebirds').filter(common_name__icontains=species_name).first()
-        if species is None:
-            print("species not found")
-            return None
-        return species.scientific_name
-        
-
     def detection_stats(self, species_name):
         # convert species name to species code
         species_code = self.get_species_code(species_name)
@@ -229,6 +236,50 @@ class eBirdStats:
         print(f"Species: {species_name} ({species_code}) ({scientific_name})")
         print(f"Recent Observations ({self.state}): {total_observations}")
         print(f"Bird Image: {bird_img}")
+
+    def get_bird_by_scientific_name(self, scientific_name):
+        scientific_name = scientific_name.replace("_", " ")
+        bird = EBirdsWorld.objects.using('ebirds').filter(scientific_name__icontains=scientific_name).first()
+        if bird is None:
+            print("bird not found")
+            return None
+        return bird
+    def get_bird_by_common_name(self, common_name):
+        common_name = common_name.replace("_", " ")
+        bird = EBirdsWorld.objects.using('ebirds').filter(common_name__icontains=common_name).first()
+        if bird is None:
+            print("bird not found")
+            return None
+        return bird
+    def get_bird_by_species_code(self, species_code):
+        bird = EBirdsWorld.objects.using('ebirds').filter(species_code__icontains=species_code).first()
+        if bird is None:
+            print("bird not found")
+            return None
+        return bird
+    def get_species_code(self, species_name):
+        return self.get_bird_by_common_name(species_name).species_code
+
+        # # query the eBirds database for the species code
+        # species_name = species_name.replace("_", " ").replace("-", " ")
+        # species = eBirds.objects.using('ebirds').filter(common_name__icontains=species_name).first()
+        # # if the species is not found, return None
+        # if species is None:
+        #     print("species not found")
+        #     return None
+        # return species.species_code   
+    def get_ebird_sciname(self, species_name):
+        return self.get_bird_by_common_name(species_name).scientific_name
+    
+        # # query the eBirds database for the species name
+        # species = eBirds.objects.using('ebirds').filter(common_name__icontains=species_name).first()
+        # if species is None:
+        #     print("species not found")
+        #     return None
+        # return species.scientific_name
+        
+
+
 
 
 if __name__ == "__main__":

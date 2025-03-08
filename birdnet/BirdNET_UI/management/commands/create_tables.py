@@ -108,6 +108,16 @@ class Command(BaseCommand):
         )
         ''')
         
+        # Create ebirds_world table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ebirds_world (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            scientific_name TEXT NOT NULL,
+            common_name TEXT NOT NULL,
+            species_code TEXT NOT NULL
+        )
+        ''')
+        
         # Create config table for ebirds
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS config (

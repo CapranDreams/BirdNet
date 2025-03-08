@@ -15,6 +15,8 @@ class BirdNetInference:
         self.min_confidence = settings.BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB
         self.my_location = settings.LOCATION_NAME
 
+        print("BirdNetInference initialized with minimum confidence: ", self.min_confidence)
+
         # Load and initialize the BirdNET-Analyzer models.
         self.analyzer = Analyzer(version=settings.BIRDNET_VERSION)
 

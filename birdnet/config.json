@@ -14,5 +14,5 @@
     "confidence_threshold": "0.6",
     "history_days": "7",
     "max_frequency": "12000",
-    "confidence_threshold_for_add_to_db": "0.5"
+    "confidence_threshold_for_add_to_db": "0.1"
 }

@@ -8,18 +8,15 @@ import numpy as np
 from django.conf import settings
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from datetime import datetime
-# from apscheduler.schedulers.background import BackgroundScheduler
-from ...models import Bird, BirdNow, WavSpectrogram, eBirds, eBirdsConfig
+from ...models import Bird, BirdNow, WavSpectrogram, eBirds, eBirdsConfig, EBirdsExtra
 from ...ml_model.birdnet_inference import BirdNetInference
+from ...eBirdStats import eBirdStats
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from django.urls import reverse
-from django.test import Client
 import websocket
 import json
 from concurrent.futures import ThreadPoolExecutor
-# from consumers import send_bird_update
+from ...bird_data_scraper import BirdDataScraper
 
 # Initialize BirdNetInference
 birdnet_inference = BirdNetInference()
@@ -62,13 +59,18 @@ class FileHandler(FileSystemEventHandler):
             time.sleep(0.5)  # Wait before checking again
 
     def process(self, file_path):
-        print(f"Processing file: {file_path}")
-        update_available = False
-        time.sleep(0.2)  # Wait before processing to avoid accessing the file before it's finished transferring
-        self.analyze_wav(file_path)
-        self.save_spectrogram(file_path)
-        self.notify_websocket_directly()
-        self.delete_wav_file(file_path)
+        try:
+            print(f"Processing file: {file_path}")
+            update_available = False
+            time.sleep(0.2)  # Wait before processing to avoid accessing the file before it's finished transferring
+            detections = self.analyze_wav(file_path)
+            self.save_spectrogram(file_path)
+            self.notify_websocket_directly()
+
+            self.check_for_new_best_recordings(detections, file_path)
+            self.delete_wav_file(file_path)
+        except Exception as e:
+            print(f"Error processing file: {e}")
 
     def analyze_wav(self, file_path):
         # Add a delay before reading the file to make sure lock removed
@@ -107,6 +109,124 @@ class FileHandler(FileSystemEventHandler):
             
         update_available = True
 
+        return detections
+
+    def check_for_new_best_recordings(self, detections, file_path):
+        # Check if any new best recordings are detected
+        # if there are no detections, do nothing
+        if not detections:
+            return
+
+        # if there are multiple detections for the same scientific name, only keep the one with the highest confidence
+        detections = self.keep_highest_confidence_detections(detections)
+
+        for detection in detections:
+            scientific_name = detection['scientific_name']
+            print(f"Processing detection: {scientific_name}") 
+
+            if len(scientific_name) > 0:
+                ebird_stats = eBirdStats(latitude=settings.LATITUDE, longitude=settings.LONGITUDE)
+                common_name = ebird_stats.get_bird_by_scientific_name(scientific_name).common_name  
+
+                new_filename = f"{scientific_name.replace(' ', '_')}.wav"
+                new_filepath = os.path.join(settings.SAVED_RECORDINGS_FOLDER, new_filename)
+
+                # Get the current best recordings from the database
+                current_best_recordings = Bird.objects.using('birds').filter(scientific_name=scientific_name).order_by('-confidence').first()
+                
+                # create new eBirds record if it doesn't exist
+                if not eBirds.objects.using('ebirds').filter(scientific_name=scientific_name).exists():
+                    species_code = ebird_stats.get_bird_by_scientific_name(scientific_name).species_code
+                    img_url = ebird_stats.get_bird_image(scientific_name)
+                    rarity = eBirds.objects.using('ebirds').filter(scientific_name=scientific_name).count()
+                    ebirds_record = {
+                        'common_name': common_name,
+                        'scientific_name': scientific_name,
+                        'species_code': species_code,
+                        'rarity': rarity,
+                        'image': img_url,
+                    }
+                    eBirds.objects.using('ebirds').create(**ebirds_record)
+
+
+
+                # create new eBirdsExtra record if it doesn't exist
+                if not EBirdsExtra.objects.using('ebirds').filter(scientific_name=scientific_name).exists():    
+                    bird_extra = EBirdsExtra(
+                        scientific_name=scientific_name,
+                        common_name=common_name,
+                        best_audio=new_filepath,
+                        ideal_audio='',
+                        range_map='',
+                        migration_description='',
+                        description='',
+                        tips='',
+                        find_this_bird='',
+                        habitat_value='',
+                        food_value='',
+                        nesting_value='',
+                        behavior_value='',
+                        conservation_value=''
+                    )
+                    scraper = BirdDataScraper()
+                    bird_data = scraper.get_ebird_extras(common_name)
+                    if bird_data.get('audio_url'):
+                        bird_extra.ideal_audio = bird_data['audio_url']
+                    if bird_data.get('range_map_url'):
+                        bird_extra.range_map = bird_data['range_map_url']
+                    if bird_data.get('migration_description'):
+                        bird_extra.migration_description = bird_data.get('migration_description', '')
+                    if bird_data.get('description'):
+                        bird_extra.description = bird_data.get('description', '')
+                    if bird_data.get('tips'):
+                        bird_extra.tips = bird_data.get('tips', '')
+                    if bird_data.get('find_this_bird'):
+                        bird_extra.find_this_bird = bird_data.get('find_this_bird', '')
+                    if bird_data.get('habitat_value'):
+                        bird_extra.habitat_value = bird_data.get('habitat_value', '')
+                        bird_extra.food_value = bird_data.get('food_value', '')
+                        bird_extra.nesting_value = bird_data.get('nesting_value', '')
+                        bird_extra.behavior_value = bird_data.get('behavior_value', '')
+                        bird_extra.conservation_value = bird_data.get('conservation_value', '')
+                    # Be nice to the server
+                    time.sleep(1)
+                    bird_extra.save(using='ebirds')
+
+            
+            # Check if the detection is a new best recording
+            if detection['confidence'] > current_best_recordings.confidence or self.no_current_recording(detection['scientific_name']):
+                self.copy_recording_to_saved_folder(file_path, new_filepath)
+                self.update_best_recording_in_database(detection['scientific_name'])
+
+    def no_current_recording(self, scientific_name):
+        # look in file system for a file with the scientific name
+        for file in os.listdir(settings.SAVED_RECORDINGS_FOLDER):
+            if scientific_name in file:
+                return False
+        return True
+
+    def copy_recording_to_saved_folder(self, file_path, new_filepath):
+        shutil.copy(file_path, new_filepath)
+
+    def update_best_recording_in_database(self, scientific_name):
+        new_filename = f"{scientific_name.replace(' ', '_')}.wav"
+        new_filepath = os.path.join(settings.SAVED_RECORDINGS_FOLDER, new_filename)
+
+        EBirdsExtra.objects.using('ebirds').filter(scientific_name=scientific_name).update(best_audio=new_filepath)
+
+    def keep_highest_confidence_detections(self, detections):
+        # if there are multiple detections for the same scientific name, only keep the one with the highest confidence
+        detections = sorted(detections, key=lambda x: x['confidence'], reverse=True)
+
+        # only keep the highest confidence detection for each scientific name
+        unique_detections = []
+        for detection in detections:
+            # the first occurence should be the highest confidence now
+            if detection['scientific_name'] not in [d['scientific_name'] for d in unique_detections]:
+                unique_detections.append(detection)
+
+        return unique_detections
+
     def delete_wav_file(self, file_path):
         try:
             os.remove(file_path)
@@ -120,6 +240,7 @@ class FileHandler(FileSystemEventHandler):
     def push_to_birds_database(self, bird):
         # bird = Bird(**results)
         bird.save(using='birds')  # Specify the 'birds' database
+
 
     def push_to_birds_now_database(self, results):
         birdnow = BirdNow(**results)

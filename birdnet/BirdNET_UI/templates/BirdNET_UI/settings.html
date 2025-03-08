@@ -13,7 +13,7 @@
     <div class="config-button-container">
         <h1 style="display: inline;">Settings</h1>
         <button id="save-settings-button" type="submit">Save Changes</button>
-        <a href="/" class="home-button">Home</a>
+        <a href="/" class="home-button-config">Home</a>
     </div>
 
     <div class="config-form-container">
@@ -55,33 +55,32 @@
                 </div>
             </div>
         </form>
+
+        <div class="config-commands">
+            <h2>Commands</h2>
+            <a href="#" title="Resets local rarity of birds in region. Takes a couple minutes to complete." class="command-ebirds-compile-button" onclick="promptForPassword_for_compile_ebirds(event)">
+                Compile eBirds
+            </a>
+    
+            <a href="#" title="Tries to get audio and map data for birds." class="command-ebirds-extras-compile-button" onclick="promptForPassword_for_compile_ebirds_extras(event)">
+                Compile eBirds Extras
+            </a>
+    
+            <a href="{% url 'download_database' %}" title="Download the raw birds.db database file (recommended to open with python)" id="download-birds-database-button">
+                Download Birds Database
+            </a>
+    
+            <a href="{% url 'download_database_ebirds' %}" title="Download the raw ebirds.db database file" id="download-ebirds-database-button">
+                Download eBirds Database
+            </a>
+    
+            <a href="{% url 'download_python_scripts' %}" title="Download the python scripts for processing databases" id="download-python-scripts-button">
+                Download Python Scripts
+            </a>
+        </div>
     </div>
 
-    <div class="config-commands">
-        <h2>Commands</h2>
-        <a href="#" title="Resets local rarity of birds in region. Takes a couple minutes to complete." class="command-ebirds-compile-button" onclick="promptForPassword_for_compile_ebirds(event)">
-            Compile eBirds
-        </a>
-
-        <a href="#" title="Tries to get audio and map data for birds." class="command-ebirds-extras-compile-button" onclick="promptForPassword_for_compile_ebirds_extras(event)">
-            Compile eBirds Extras
-        </a>
-
-        <a href="{% url 'download_database' %}" title="Download the raw birds.db database file (recommended to open with python)" id="download-birds-database-button">
-            <img class="card-collection-image" src="{% static 'img/database_icon.png' %}">
-            Download Birds Database
-        </a>
-
-        <a href="{% url 'download_database_ebirds' %}" title="Download the raw ebirds.db database file" id="download-ebirds-database-button">
-            <img class="card-collection-image" src="{% static 'img/database_icon.png' %}">
-            Download eBirds Database
-        </a>
-
-        <a href="{% url 'download_python_scripts' %}" title="Download the python scripts for processing databases" id="download-python-scripts-button">
-            <img class="card-collection-image" src="{% static 'img/database_icon.png' %}">
-            Download Python Scripts
-        </a>
-    </div>
+    
 
 </body>
 </html> 
