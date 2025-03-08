@@ -60,21 +60,21 @@ class eBirds(models.Model):
         app_label = 'BirdNET_UI'  # Specify the app label if necessary
         managed = False  # Set to False if the table is managed outside of Django
 
-class eBirdsConfig(models.Model):
-    id = models.AutoField(primary_key=True)  # Auto-incremented ID
-    state = models.CharField(max_length=50)
-    subregion_code = models.CharField(max_length=50)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-    compiled = models.BooleanField()
+# class eBirdsConfig(models.Model):
+#     id = models.AutoField(primary_key=True)  # Auto-incremented ID
+#     state = models.CharField(max_length=50)
+#     subregion_code = models.CharField(max_length=50)
+#     latitude = models.FloatField()
+#     longitude = models.FloatField()
+#     compiled = models.BooleanField()
     
-    def __str__(self):
-        return self.state
+#     def __str__(self):
+#         return self.state
     
-    class Meta:
-        db_table = 'config'  # Specify the table name as 'config'
-        app_label = 'BirdNET_UI'  # Specify the app label if necessary
-        managed = False  # Set to False if the table is managed outside of Django
+#     class Meta:
+#         db_table = 'config'  # Specify the table name as 'config'
+#         app_label = 'BirdNET_UI'  # Specify the app label if necessary
+#         managed = False  # Set to False if the table is managed outside of Django
 
 class Config(models.Model):
     id = models.AutoField(primary_key=True)

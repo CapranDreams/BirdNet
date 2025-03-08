@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.conf import settings
 from datetime import datetime, timedelta
 from django.http import JsonResponse, FileResponse, Http404
-from .models import Bird, BirdNow, WavSpectrogram, eBirds, eBirdsConfig, Config, EBirdsExtra
+from .models import Bird, BirdNow, WavSpectrogram, eBirds, Config, EBirdsExtra
 from BirdNET_UI.management.commands.start_file_listener import FileHandler
 from BirdNET_UI.eBirdStats import eBirdStats
 import json
@@ -292,26 +292,6 @@ def download_python_scripts(request):
     response = FileResponse(open(filepath, 'rb'), content_type='application/zip')
     response['Content-Disposition'] = f'attachment; filename="python_scripts.zip"'
     return response
-
-
-def read_ebirds_config(request):
-    try:
-        print("read_ebirds_config view called")
-        configs = eBirdsConfig.objects.using('ebirds').all()  # Fetch all records
-        config_list = [
-            {
-                'state': config.state,
-                'subregion_code': config.subregion_code,
-                'latitude': config.latitude,
-                'longitude': config.longitude,
-                'compiled': config.compiled
-            }
-            for config in configs
-        ]
-        return JsonResponse(config_list[0], safe=False)  # Return as JSON response
-    except Exception as e:
-        print(f"Error in read_ebirds_config view: {e}")
-        return JsonResponse({'error': 'An error occurred'}, status=500)
     
 def get_all_ebirds(request):
     try:

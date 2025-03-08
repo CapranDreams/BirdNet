@@ -16,7 +16,6 @@ urlpatterns = [
     path('download_python_scripts/', views.download_python_scripts, name='download_python_scripts'),
     path('api/ebirds/<str:scientific_name>/', views.get_ebirds, name='get_ebirds'),
     path('api/ebirds/', views.get_all_ebirds, name='get_all_ebirds'),
-    path('api/ebirds_config/', views.read_ebirds_config, name='read_ebirds_config'),
     path('stats/', views.display_ebirds, name='display_ebirds'),
     path('api/observation_history_days/', views.get_observation_history_days, name='get_observation_history_days'),
     path('api/update_available/', views.get_update_available, name='get_update_available'),

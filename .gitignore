@@ -6,5 +6,8 @@ BirdNET.code-workspace
 _secrets
 .env
 *.db
+!ebirds.db
 venv_birdnet
 _push_to_server.py
+*.wav
+overflow

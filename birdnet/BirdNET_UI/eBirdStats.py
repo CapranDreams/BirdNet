@@ -1,10 +1,7 @@
 import json
 import os
-from django.shortcuts import render
 from django.conf import settings
-from BirdNET_UI.models import eBirds, eBirdsConfig, EBirdsWorld
-# from .models import eBirds, eBirdsConfig
-# from ..models import eBirds, eBirdsConfig
+from BirdNET_UI.models import eBirds, EBirdsWorld
 from django.conf import settings
 
 
@@ -24,8 +21,6 @@ class eBirdStats:
         self.lon = longitude
         self.state = None
         self.subregion_code = None
-
-        print("eBirdsConfig: ", eBirdsConfig.objects)
 
         self.set_location(latitude, longitude)
 
@@ -89,9 +84,6 @@ class eBirdStats:
                 }
                 self.push_to_ebirds_database(record)
 
-
-        self.set_config_compiled(True)
-
     def push_to_ebirds_global_db(self, ebird_global_record):
         # Use Django ORM to save the record
         bird = EBirdsWorld(**ebird_global_record)
@@ -103,16 +95,6 @@ class eBirdStats:
     def erase_ebirds_database(self):
         # Use Django ORM to delete all records
         eBirds.objects.using('ebirds').all().delete()
-    def set_config_compiled(self, compiled):
-        # Use Django ORM to update the compiled field
-        eBirdsConfig.objects.using('ebirds').update(compiled=compiled)
-    def get_config_compiled(self):
-        # Use Django ORM to query the eBirdsConfig model
-        config = eBirdsConfig.objects.using('ebirds').all()
-        print("config: ", config)
-        if config:
-            return config[0].compiled
-        return False
 
     def get_bird_details(self, bird_code):
         url = f"https://api.ebird.org/v2/ref/taxonomy/ebird?species={bird_code}"

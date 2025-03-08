@@ -10,6 +10,4 @@ class Command(BaseCommand):
 
         ebird.build_birds_in_region_db()
 
-        ebird.set_config_compiled(True)
-
         print("eBirds database compiled and rarity updated")

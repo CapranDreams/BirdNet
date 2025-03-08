@@ -8,7 +8,7 @@ import numpy as np
 from django.conf import settings
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from ...models import Bird, BirdNow, WavSpectrogram, eBirds, eBirdsConfig, EBirdsExtra
+from ...models import Bird, BirdNow, WavSpectrogram, eBirds, EBirdsExtra
 from ...ml_model.birdnet_inference import BirdNetInference
 from ...eBirdStats import eBirdStats
 from channels.layers import get_channel_layer

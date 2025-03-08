@@ -1,20 +1,9 @@
 from django.core.management.base import BaseCommand
 import os
 import time
-import shutil
-from scipy import signal
-from scipy.io import wavfile
-import numpy as np
 from django.conf import settings
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-from datetime import datetime
-from ...models import Bird, BirdNow, WavSpectrogram, eBirds, eBirdsConfig
+from ...models import Bird
 from ...ml_model.birdnet_inference import BirdNetInference
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from django.urls import reverse
-from django.test import Client
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.db import transaction
 

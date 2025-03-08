@@ -119,16 +119,16 @@ class Command(BaseCommand):
         ''')
         
         # Create config table for ebirds
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS config (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            state TEXT,
-            subregion_code TEXT,
-            latitude REAL,
-            longitude REAL,
-            compiled BOOLEAN DEFAULT 0
-        )
-        ''')
+        # cursor.execute('''
+        # CREATE TABLE IF NOT EXISTS config (
+        #     id INTEGER PRIMARY KEY AUTOINCREMENT,
+        #     state TEXT,
+        #     subregion_code TEXT,
+        #     latitude REAL,
+        #     longitude REAL,
+        #     compiled BOOLEAN DEFAULT 0
+        # )
+        # ''')
         
         # Insert default config if it doesn't exist
         cursor.execute('''
