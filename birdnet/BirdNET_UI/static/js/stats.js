@@ -471,6 +471,8 @@ class BirdCard {
                         return '/static/img/behavior/aerial_dive.jpg';
                     case 'aerial_forager':
                         return '/static/img/behavior/aerial_forager.jpg';
+                    case 'bark_forager':
+                        return '/static/img/behavior/bark_forager.jpg';
                     case 'dabbler':
                         return '/static/img/behavior/dabbler.jpg';
                     case 'flycatching':
