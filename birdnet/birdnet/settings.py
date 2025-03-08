@@ -46,7 +46,7 @@ BIRDNET_CONFIDENCE_THRESHOLD_FOR_ADD_TO_DB = float(config.get("confidence_thresh
 
 WEBSOCKET_URL = f"ws://{BIRDNET_ADDRESS}:{BIRDNET_WS_PORT}/ws/birds/"
 
-SAVED_RECORDINGS_FOLDER = os.path.join(BASE_DIR, 'BirdNET_UI', 'data', 'saved')
+SAVED_RECORDINGS_FOLDER = os.path.join(BASE_DIR, 'BirdNET_UI', 'static', 'recordings')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/

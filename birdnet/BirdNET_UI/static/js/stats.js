@@ -161,7 +161,7 @@ class BirdCard {
                     
                     // Set best recording if available
                     if (extraData.best_audio) {
-                        bestRecordingPlayer.src = extraData.best_audio;
+                        bestRecordingPlayer.src = "../" + extraData.best_audio;
                     } 
                     
                     // Set range map if available

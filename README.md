@@ -40,3 +40,7 @@ See when certain birds are out with graphs showing sightings per hour of the day
 - If you want to clone an existing BirdNetPi database into here:
   * Follow the instructions in examples/import_birdnetpi_db.ipynb
 - Find the folder BirdNET/birdnet/BirdNET_UI/data/ and add the folder "saved" to it. 
+
+# Processing overflow wav files
+If the server had to be turned off or if it crashes, wav files will accumulate in the BirdNET_UI/data/wav folder. If you manually transfer all desired wav files to the BirdNET_UI/data/overflow folder and run the command, then the files will be added to the database and the wav files will be deleted.
+* python manage.py process_overflow_wav

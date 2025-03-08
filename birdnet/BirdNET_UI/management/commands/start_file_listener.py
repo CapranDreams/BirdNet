@@ -152,10 +152,12 @@ class FileHandler(FileSystemEventHandler):
 
                 # create new eBirdsExtra record if it doesn't exist
                 if not EBirdsExtra.objects.using('ebirds').filter(scientific_name=scientific_name).exists():    
+                    audio_filepath = os.path.relpath(new_filepath, start=settings.STATIC_ROOT)
+
                     bird_extra = EBirdsExtra(
                         scientific_name=scientific_name,
                         common_name=common_name,
-                        best_audio=new_filepath,
+                        best_audio=audio_filepath,
                         ideal_audio='',
                         range_map='',
                         migration_description='',
