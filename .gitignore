@@ -10,4 +10,5 @@ _secrets
 venv_birdnet
 _push_to_server.py
 *.wav
+!audio_placeholder
 overflow

@@ -160,9 +160,13 @@ class BirdCard {
                     } 
                     
                     // Set best recording if available
-                    if (extraData.best_audio) {
+                    if (this.bird.common_name.toLowerCase().includes('mockingbird')) {
+                        bestRecordingPlayer.src = '../static/audio_placeholder/mockingbird.wav';
+                    } else if (extraData.best_audio) {
                         bestRecordingPlayer.src = "../" + extraData.best_audio;
-                    } 
+                    } else {
+                        bestRecordingPlayer.src = '';
+                    }
                     
                     // Set range map if available
                     const rangeMap = document.getElementById('modalRangeMap');
