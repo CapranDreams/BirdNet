@@ -212,9 +212,10 @@ class FileHandler(FileSystemEventHandler):
 
     def update_best_recording_in_database(self, scientific_name):
         new_filename = f"{scientific_name.replace(' ', '_')}.wav"
-        new_filepath = os.path.join(settings.SAVED_RECORDINGS_FOLDER, new_filename)
+        # new_filepath = os.path.join(settings.SAVED_RECORDINGS_FOLDER, new_filename)
+        best_audio_url = f"static/recordings/{new_filename}"
 
-        EBirdsExtra.objects.using('ebirds').filter(scientific_name=scientific_name).update(best_audio=new_filepath)
+        EBirdsExtra.objects.using('ebirds').filter(scientific_name=scientific_name).update(best_audio=best_audio_url)
 
     def keep_highest_confidence_detections(self, detections):
         # if there are multiple detections for the same scientific name, only keep the one with the highest confidence
